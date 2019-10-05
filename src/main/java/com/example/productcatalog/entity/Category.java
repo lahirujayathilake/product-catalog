@@ -22,9 +22,13 @@ public class Category {
 
     private String description;
 
-    @ManyToMany(fetch = FetchType.LAZY,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            mappedBy = "categories")
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
+    )
+    @JoinTable(name = "product_category",
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id"))
     @JsonIgnore
     private List<Product> products;
 
@@ -58,5 +62,15 @@ public class Category {
 
     public void setProducts(List<Product> products) {
         this.products = products;
+    }
+
+    /**
+     * Remove the <code>product</code> from the {@link Category#products Product list} list
+     *
+     * @param product {@link Product} need to be removed
+     */
+    public void removeProduct(Product product) {
+        products.remove(product);
+        product.getCategories().remove(this);
     }
 }

@@ -1,7 +1,5 @@
 package com.example.productcatalog.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.util.List;
 
@@ -25,12 +23,9 @@ public class Product {
 
     @ManyToMany(
             fetch = FetchType.LAZY,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            mappedBy = "products"
     )
-    @JoinTable(name = "product_category",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id"))
-    @JsonIgnore
     private List<Category> categories;
 
     public String getId() {
