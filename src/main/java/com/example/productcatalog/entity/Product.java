@@ -1,6 +1,10 @@
 package com.example.productcatalog.entity;
 
 import javax.persistence.*;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 
 /**
@@ -14,11 +18,15 @@ import java.util.List;
 public class Product {
 
     @Id
+    @Pattern(regexp = "^[a-zA-Z0-9-]{2,8}$")
     private String id;
 
+    @NotNull
     private String name;
 
     @Column(precision = 10, scale = 2)
+    @DecimalMax("99999999.99")
+    @DecimalMin("0.01")
     private double unitPrice;
 
     @ManyToMany(

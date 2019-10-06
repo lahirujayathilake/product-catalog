@@ -3,6 +3,8 @@ package com.example.productcatalog.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 
 /**
@@ -16,8 +18,10 @@ import java.util.List;
 public class Category {
 
     @Id
+    @Pattern(regexp = "^[a-zA-Z0-9-]{2,8}$")
     private String id;
 
+    @NotNull
     private String name;
 
     private String description;
