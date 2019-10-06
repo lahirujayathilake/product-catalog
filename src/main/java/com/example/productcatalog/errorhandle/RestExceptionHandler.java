@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -175,6 +176,19 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST,
                 String.format("The parameter '%s' of value '%s' could not be converted to type '%s'",
                         ex.getName(), ex.getValue(), Objects.requireNonNull(ex.getRequiredType()).getSimpleName()));
+        apiError.setDebugMessage(ex.getMessage());
+        return createResponseEntity(apiError);
+    }
+
+    /**
+     * Handle AccessDeniedException, handle generic Exceptions
+     *
+     * @param ex the Exception
+     * @return the ApiError object wrapped with ResponseEntity
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    protected ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
+        ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, "Access Denied For", ex);
         apiError.setDebugMessage(ex.getMessage());
         return createResponseEntity(apiError);
     }
