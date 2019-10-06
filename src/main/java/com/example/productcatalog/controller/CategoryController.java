@@ -5,6 +5,7 @@ import com.example.productcatalog.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -42,11 +43,13 @@ public class CategoryController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('CREATE_CONTENT')")
     public ResponseEntity<Category> createCategory(@RequestBody @Valid Category category) {
         return new ResponseEntity<>(categoryService.createUpdateCategory(category), HttpStatus.CREATED);
     }
 
     @PutMapping
+    @PreAuthorize("hasAnyAuthority('UPDATE_CONTENT')")
     public ResponseEntity<Category> updateCategory(@RequestBody @Valid Category category) {
         if (categoryService.getCategory(category.getId()) != null) {
             return new ResponseEntity<>(categoryService.createUpdateCategory(category), HttpStatus.CREATED);
@@ -57,6 +60,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{categoryId}")
+    @PreAuthorize("hasAnyAuthority('DELETE_CONTENT')")
     public ResponseEntity<Void> deleteCategory(@PathVariable String categoryId) {
         if (categoryService.getCategory(categoryId) != null) {
             categoryService.deleteCategory(categoryId);

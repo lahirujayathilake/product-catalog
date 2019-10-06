@@ -7,6 +7,7 @@ import com.example.productcatalog.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -39,6 +40,7 @@ public class ProductController {
     }
 
     @PostMapping("/categories/{categoryId}/products")
+    @PreAuthorize("hasAnyAuthority('CREATE_CONTENT')")
     public ResponseEntity<Product> createProductFromCategory(@PathVariable String categoryId, @RequestBody @Valid Product product) {
         product.setCategories(Collections.singletonList(categoryService.getCategory(categoryId)));
         Product createdProduct = productService.createUpdateProduct(product);
@@ -47,6 +49,7 @@ public class ProductController {
     }
 
     @PostMapping("/products")
+    @PreAuthorize("hasAnyAuthority('CREATE_CONTENT')")
     public ResponseEntity<Product> createProduct(@RequestBody @Valid Product product) {
         List<Category> categories = new ArrayList<>();
         if (!product.getCategories().isEmpty()) {
@@ -58,6 +61,7 @@ public class ProductController {
     }
 
     @PutMapping("/products")
+    @PreAuthorize("hasAnyAuthority('UPDATE_CONTENT')")
     public ResponseEntity<Product> updateProduct(@RequestBody @Valid Product product) {
         if (productService.getProduct(product.getId()) != null) {
             List<Category> categories = new ArrayList<>();
@@ -76,6 +80,7 @@ public class ProductController {
     }
 
     @DeleteMapping("products/{productId}")
+    @PreAuthorize("hasAnyAuthority('DELETE_CONTENT')")
     public ResponseEntity<Void> deleteProduct(@PathVariable String productId) {
         Product product = productService.getProduct(productId);
 
