@@ -34,8 +34,9 @@ public interface ICategoryService {
      * {@link Category#id}
      *
      * @param category {@link Category} which need to be inserted or updated
+     * @return the created {@link Category} object
      */
-    void createUpdateCategory(Category category);
+    Category createUpdateCategory(Category category);
 
     /**
      * Find the list of {@link Category Categories} corresponding to

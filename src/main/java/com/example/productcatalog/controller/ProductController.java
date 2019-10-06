@@ -29,49 +29,65 @@ public class ProductController {
     @Autowired
     CategoryService categoryService;
 
-    @RequestMapping("/categories/{categoryId}/products")
-    public List<Product> getProducts(@PathVariable String categoryId) {
-        return productService.getProducts(categoryId);
+    @GetMapping("/categories/{categoryId}/products")
+    public ResponseEntity<List<Product>> getProducts(@PathVariable String categoryId) {
+        List<Product> products = productService.getProducts(categoryId);
+
+        return products.size() > 0
+                ? new ResponseEntity<>(products, HttpStatus.FOUND)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/categories/{categoryId}/products")
-    public Product createProductFromCategory(@PathVariable String categoryId, @RequestBody @Valid Product product) {
+    public ResponseEntity<Product> createProductFromCategory(@PathVariable String categoryId, @RequestBody @Valid Product product) {
         product.setCategories(Collections.singletonList(categoryService.getCategory(categoryId)));
+        Product createdProduct = productService.createUpdateProduct(product);
 
-        return productService.createUpdateProduct(product);
+        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
 
     @PostMapping("/products")
-    public Product createProduct(@RequestBody @Valid Product product) {
+    public ResponseEntity<Product> createProduct(@RequestBody @Valid Product product) {
         List<Category> categories = new ArrayList<>();
         if (!product.getCategories().isEmpty()) {
             product.getCategories().forEach(c -> categories.add(categoryService.getCategory(c.getId())));
         }
         product.setCategories(categories);
 
-        return productService.createUpdateProduct(product);
+        return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
 
     @PutMapping("/products")
-    public Product updateProduct(@RequestBody @Valid Product product) {
-        List<Category> categories = new ArrayList<>();
-        // If categories have been removed that will reflect in the product
-        if (!product.getCategories().isEmpty()) {
-            // If there categories load the correct values
-            product.getCategories().forEach(c -> categories.add(categoryService.getCategory(c.getId())));
-        }
-        product.setCategories(categories);
+    public ResponseEntity<Product> updateProduct(@RequestBody @Valid Product product) {
+        if (productService.getProduct(product.getId()) != null) {
+            List<Category> categories = new ArrayList<>();
+            // If categories have been removed that will reflect in the product
+            if (!product.getCategories().isEmpty()) {
+                // If there categories load the correct values
+                product.getCategories().forEach(c -> categories.add(categoryService.getCategory(c.getId())));
+            }
+            product.setCategories(categories);
 
-        return productService.createUpdateProduct(product);
+            return new ResponseEntity<>(productService.createUpdateProduct(product), HttpStatus.OK);
+
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
     }
 
     @DeleteMapping("products/{productId}")
     public ResponseEntity<Void> deleteProduct(@PathVariable String productId) {
         Product product = productService.getProduct(productId);
-        List<Category> categories = categoryService.getCategoriesByProductId(productId);
-        categories.forEach(c -> c.removeProduct(product));
-        productService.deleteProduct(product);
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (product != null) {
+            List<Category> categories = categoryService.getCategoriesByProductId(productId);
+            categories.forEach(c -> c.removeProduct(product));
+            productService.deleteProduct(product);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
     }
 }

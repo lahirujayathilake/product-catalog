@@ -24,28 +24,47 @@ public class CategoryController {
     CategoryService categoryService;
 
     @GetMapping
-    public List<Category> getAllCategories() {
-        return categoryService.getAllCategories();
+    public ResponseEntity<List<Category>> getAllCategories() {
+        List<Category> list = categoryService.getAllCategories();
+
+        return list.size() > 0
+                ? new ResponseEntity<>(list, HttpStatus.FOUND)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/{categoryId}")
-    public Category getCategory(@PathVariable String categoryId) {
-        return categoryService.getCategory(categoryId);
+    public ResponseEntity<Category> getCategory(@PathVariable String categoryId) {
+        Category category = categoryService.getCategory(categoryId);
+
+        return category != null
+                ? new ResponseEntity<>(category, HttpStatus.FOUND)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping
-    public void createCategory(@RequestBody @Valid Category category) {
-        categoryService.createUpdateCategory(category);
+    public ResponseEntity<Category> createCategory(@RequestBody @Valid Category category) {
+        return new ResponseEntity<>(categoryService.createUpdateCategory(category), HttpStatus.CREATED);
     }
 
     @PutMapping
-    public void updateCategory(@RequestBody @Valid Category category) {
-        categoryService.createUpdateCategory(category);
+    public ResponseEntity<Category> updateCategory(@RequestBody @Valid Category category) {
+        if (categoryService.getCategory(category.getId()) != null) {
+            return new ResponseEntity<>(categoryService.createUpdateCategory(category), HttpStatus.CREATED);
+
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
     }
 
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<Void> deleteCategory(@PathVariable String categoryId) {
-        categoryService.deleteCategory(categoryId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (categoryService.getCategory(categoryId) != null) {
+            categoryService.deleteCategory(categoryId);
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }
     }
 }
